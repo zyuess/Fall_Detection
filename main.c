@@ -117,7 +117,7 @@
 #define CLHEADER1 "Content-Length: "
 #define CLHEADER2 "\r\n\r\n"
 
-#define DATA1 "{\"state\": {\n\r\"desired\" : {\n\r\"messageagain\" : \"Hello from CC3200!!!\"\n\r}}}\n\r\n\r"
+#define DATA1 "{\"state\": {\n\r\"desired\" : {\n\r\"messageagain\" : \"The subject is falling down and is probably in danger, please check!!!\"\n\r}}}\n\r\n\r"
 
 // Application specific status/error codes
 typedef enum{
@@ -409,22 +409,6 @@ void MasterMain() {
         //
         if (state == 2)
         {
-            UART_PRINT("i am in state 2\n\r");
-            //poll SW2
-            if (GPIOPinRead(GPIOA2_BASE, 0x40)) {
-                PrintMsgRemoved();
-                UART_PRINT("i am back to state 0\n\r");
-                state = 0; //back to detection state
-                continue;
-            }
-            else if (!GPIOPinRead(GPIOA2_BASE, 0x40)){
-                UART_PRINT("i am printing message\n\r");
-                PrintMsgSent();
-            }
-            else {
-                UART_PRINT("This will not happen.\n\r");
-            }
-
             GPIO_IF_LedOff(MCU_ORANGE_LED_GPIO);
             GPIO_IF_LedOn(MCU_RED_LED_GPIO);
             GPIO_IF_LedOff(MCU_GREEN_LED_GPIO);
@@ -439,21 +423,24 @@ void MasterMain() {
             else if (!GPIOPinRead(GPIOA2_BASE, 0x40)){
                 UART_PRINT("i am printing message\n\r");
                 PrintMsgSent();
+                break;
             }
             else {
                 UART_PRINT("This will not happen.\n\r");
             }
         }
 
+        //
+        // Wrong state:
+        // The program will not go to this state unless there is a bug
+        //
         else
         {
             UART_PRINT("Entering wrong state.\n\r");
         }
-
-        UART_PRINT("end\n\r");
-        send_flag = 1;
-        break;
     }
+    UART_PRINT("end\n\r");
+    send_flag = 1;
 }
 
 //*****************************************************************************
@@ -1266,5 +1253,4 @@ static int http_post(int iTLSSockID){
 //! @
 //
 //*****************************************************************************
-
 
