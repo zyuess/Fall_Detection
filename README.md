@@ -1,5 +1,7 @@
-# Welcome to GitHub Desktop!
+# TI CC3200 Fall Down Detector
 
-This is your README. READMEs are where you can communicate what your project is and how to use it.
+This is a project that based on TI CC3200 launchpad and its accelerometer to collect motion of people
 
-Write your name on line 6, save it, and then head back to GitHub Desktop.
+and decide if the object has fallen or not.
+
+NOTE: This project is based on personal AWS services. PLEASE DO NOT USE THE CODE DIRECTLY.
