@@ -117,7 +117,7 @@
 #define CLHEADER1 "Content-Length: "
 #define CLHEADER2 "\r\n\r\n"
 
-#define DATA1 "{\"state\": {\n\r\"desired\" : {\n\r\"messageagain\" : \"The subject is falling down and is probably in danger, please check!!!\"\n\r}}}\n\r\n\r"
+#define DATA1 "{\"state\": {\n\r\"desired\" : {\n\r\"default\" : \"Hello from CC3200!!!\",\n\r\"sms\" : \"The subject is falling down and is probably in danger, please check!\"\n\r}}}\n\r\n\r"
 
 // Application specific status/error codes
 typedef enum{
@@ -306,6 +306,7 @@ void MasterMain() {
     int state = 0;
 
     UART_PRINT("start\n\r");
+
     while(1)
     {
         //
@@ -387,18 +388,20 @@ void MasterMain() {
                 // threshold
                 //
                 int acc_new = sqrt(pow(xmove,2)+pow(ymove,2)+pow(zmove,2));
-                if (acc_new > 128) { //128 about 2.0 g
+                if (i < 10000 && acc_new > 128) { //128 about 2.0 g
                     UART_PRINT("i am back to state 0\n\r");
                     state = 0; //once moved, back to detection state
                     break;
                 }
-                if (i == 10000 && acc_new < 128) {
+                else if (i == 10000 && acc_new < 128) {
                     UART_PRINT("i am entering state 2\n\r");
                     state = 2; //entering fall state
                     break;
                 }
-                i = i + 1;
-                UART_PRINT("another round\n\r");
+                else {
+                    i = i + 1;
+                    UART_PRINT("another round of comparing\n\r");
+                }
             } //end of time elapsed loop
             continue;
         }
@@ -413,21 +416,18 @@ void MasterMain() {
             GPIO_IF_LedOn(MCU_RED_LED_GPIO);
             GPIO_IF_LedOff(MCU_GREEN_LED_GPIO);
 
-            //poll SW2
+            //poll SW2 to remove alarm
             if (GPIOPinRead(GPIOA2_BASE, 0x40)) {
                 PrintMsgRemoved();
                 UART_PRINT("i am back to state 0\n\r");
                 state = 0; //back to detection state
-                continue;
             }
-            else if (!GPIOPinRead(GPIOA2_BASE, 0x40)){
+            else {
                 UART_PRINT("i am printing message\n\r");
                 PrintMsgSent();
                 break;
             }
-            else {
-                UART_PRINT("This will not happen.\n\r");
-            }
+            continue;
         }
 
         //
@@ -438,7 +438,8 @@ void MasterMain() {
         {
             UART_PRINT("Entering wrong state.\n\r");
         }
-    }
+    } //end of while loop
+
     UART_PRINT("end\n\r");
     send_flag = 1;
 }
@@ -1253,4 +1254,5 @@ static int http_post(int iTLSSockID){
 //! @
 //
 //*****************************************************************************
+
 
