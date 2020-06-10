@@ -216,6 +216,13 @@ void PrintMsgRemoved() {
     drawChar(72, 64, 'D', 0xFFFF, 0x0000, 1);
 }
 
+int getdelta(signed char magnitude) {
+    float max = 256;
+    float delta = ((float)magnitude)/max;
+    delta = delta * 10;
+    return (int)delta;
+}
+
 void MasterMain() {
     //
     // Enable the SPI module clock
@@ -334,15 +341,16 @@ void MasterMain() {
             //
             // Transfer data to moving distance
             //
-            xmove = (signed char) tempX[0];
-            ymove = (signed char) tempY[0];
-            zmove = (signed char) tempZ[0];
+            xmove = getdelta((signed char) tempX[0]);
+            ymove = getdelta((signed char) tempY[0]);
+            zmove = getdelta((signed char) tempZ[0]);
 
             //
             // Calculate final acceleration value and compare it with
             // threshold
             //
             int acc = sqrt(pow(xmove,2)+pow(ymove,2)+pow(zmove,2));
+            UART_PRINT("%d\n\r", &acc);
             if (acc > 224) { //224 about 3.5 g
                 UART_PRINT("i am entering state 1\n\r");
                 state = 1; //entering potential fall state
@@ -379,15 +387,16 @@ void MasterMain() {
                 //
                 // Transfer data to moving distance
                 //
-                xmove = (signed char) tempX[0];
-                ymove = (signed char) tempY[0];
-                zmove = (signed char) tempZ[0];
+                xmove = getdelta((signed char) tempX[0]);
+                ymove = getdelta((signed char) tempY[0]);
+                zmove = getdelta((signed char) tempZ[0]);
 
                 //
                 // Calculate final acceleration value and compare it with
                 // threshold
                 //
                 int acc_new = sqrt(pow(xmove,2)+pow(ymove,2)+pow(zmove,2));
+                UART_PRINT("%d\n\r", acc_new);
                 if (i < 10000 && acc_new > 128) { //128 about 2.0 g
                     UART_PRINT("i am back to state 0\n\r");
                     state = 0; //once moved, back to detection state
